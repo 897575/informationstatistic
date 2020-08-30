@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java.informationstatistic.dao.car.ConfigDao">
+
+    <select id="findAllInfo" resultType="com.java.informationstatistic.model.PlatformTableInfo">
+        SELECT
+                platform_flags as platformFlags,car_table_name AS carTableName,tag_table_name AS tagTableName
+        FROM
+                platform_table_config_info;
+    </select>
+    
+    <select id="findRelateTable" resultType="com.java.informationstatistic.model.RelateTableInfo">
+        SELECT
+                car_table_name AS tableName,relate_car_table_name AS relateCarTableName,relate_tag_table_name AS relateTagTableName
+        FROM
+                relate_table_info;
+    </select>
+
+    <select id="findPlatformFlag" resultType="string" >
+        SELECT
+                platform_flag
+        FROM
+                platform_config_info;
+    </select>
+
+    <select id="findPlatformCount" resultType="int">
+        SELECT
+                count(platform_id)
+        FROM
+                platform_config_info
+    </select>
+    
+    <select id="findPlatformInfo" resultType="com.java.informationstatistic.model.PlatformInfo" parameterType="map">
+        SELECT
+                platform_id AS id,platform_name AS platformName,platform_flag AS platformFlag,create_time AS createTime
+        FROM
+                platform_config_info limit  ${firstIndex},${pageSize}
+    </select>
+    
+    <delete id="deletePlatformInfos" parameterType="list">
+        DELETE FROM platform_config_info WHERE platform_id IN
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            ${item}
+        </foreach>
+    </delete>
+    
+    <insert id="insertPlatformInfo" parameterType="com.java.informationstatistic.model.PlatformInfo">
+        INSERT INTO
+                    platform_config_info (platform_name,platform_flag,create_time)
+        VALUES
+                    (#{platformName},#{platformFlag},#{createTime});
+    </insert>
+    
+    <select id="findPlatformByFlag" parameterType="string" resultType="int">
+        SELECT
+              count(platform_id)
+        FROM
+              platform_config_info
+        WHERE
+              platform_flag = #{flag}
+    </select>
+    
+    <update id="editPlatformInfo" parameterType="com.java.informationstatistic.model.PlatformInfo">
+        UPDATE
+                platform_config_info
+        SET
+                platform_name = #{platformName},platform_flag = #{platformFlag}
+        WHERE
+                platform_id = #{id}
+    </update>
+
+    <select id="findPlatformTableInfoLimit" parameterType="map" resultType="map">
+        SELECT
+                id,platform_flags AS platformFlags,car_table_name AS carTableName,tag_table_name AS tagTableName,create_time AS createTime
+        FROM
+                platform_table_config_info LIMIT ${firstIndex},${pageSize}
+    </select>
+    
+    <select id="findPlatformTableCount" resultType="int">
+        SELECT
+              COUNT(id)
+        FROM
+              platform_table_config_info
+    </select>
+    
+    <select id="findPlatRelateTableInfo" parameterType="string" resultType="map">
+        SELECT
+                relate_car_table_name AS relateCarTableName,relate_tag_table_name AS relateTagTableName
+        FROM
+                relate_table_info
+        WHERE
+                car_table_name = #{tableName}
+    </select>
+    
+    <select id="findPlatformTableCountbyTableName" parameterType="string" resultType="int">
+        SELECT
+              COUNT(id)
+        FROM
+              platform_table_config_info
+        WHERE
+              car_table_name = #{carTableName}
+    </select>
+    
+    <select id="findplatRelateCountByTableName" parameterType="string" resultType="int">
+        SELECT
+                COUNT(id)
+        FROM
+                relate_table_info
+        WHERE
+                car_table_name = #{tableName}
+    </select>
+    
+    <insert id="insertPlatformTbaleInfo" parameterType="com.java.informationstatistic.model.PlatformTableInfo" >
+        INSERT INTO
+                    platform_table_config_info
+                    (platform_flags,car_table_name,tag_table_name,create_time)
+        VALUES
+                    (#{platformFlags},#{carTableName},#{tagTableName},DATE_FORMAT(now(),'%Y-%m-%d'))
+    </insert>
+    
+    <insert id="insertPlatformRelateTableInfo" parameterType="com.java.informationstatistic.model.RelateTableInfo">
+        INSERT INTO
+                     relate_table_info
+                     (car_table_name,relate_car_table_name,relate_tag_table_name,create_time)
+        VALUES
+                      (#{tableName},#{relateCarTableName},#{relateTagTableName},DATE_FORMAT(now(),'%Y-%m-%d'))
+    </insert>
+    
+    <delete id="deletePlatformTableInfo" parameterType="list" >
+        DELETE  FROM
+                platform_table_config_info
+        WHERE car_table_name IN
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            ${item}
+        </foreach>
+    </delete>
+    
+    <delete id="deletePlatformRelateTableInfo" parameterType="list">
+        DELETE FROM
+                    relate_table_info
+        WHERE
+                    car_table_name IN
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+    
+    <update id="updatePlatformTableInfo" parameterType="com.java.informationstatistic.model.PlatformTableInfo">
+          UPDATE
+                  platform_table_config_info
+          SET
+                  tag_table_name = #{tagTableName},platform_flags = #{platformFlags}
+          WHERE
+                  car_table_name = #{carTableName}
+    </update>
+    
+    <update id="updatePlatformRelateTableInfo" parameterType="com.java.informationstatistic.model.RelateTableInfo">
+        UPDATE
+                relate_table_info
+        SET
+                relate_car_table_name = #{relateCarTableName},relate_tag_table_name=#{relateTagTableName}
+        WHERE
+                car_table_name = #{tableName}
+    </update>
+    
+</mapper>

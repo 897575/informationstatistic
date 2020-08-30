@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java.informationstatistic.dao.car.CarPostDao">
+    <resultMap id="basePostResultMap" type="com.java.informationstatistic.model.Post">
+        <result column="post_id" property="postId"/>
+        <result column="post_time" property="postTime"/>
+        <result column="positive_prob" property="positiveProb"/>
+    </resultMap>
+
+    <select id="findByPostTime" resultMap="basePostResultMap" parameterType="map" statementType="STATEMENT">
+        SELECT
+               post_id,post_time,positive_prob
+        FROM
+               ${tableName}
+        WHERE
+              post_time BETWEEN '${beginTime}'  AND '${endTime}';
+    </select>
+    
+    <select id="testTable" parameterType="string" statementType="STATEMENT" resultType="string">
+        SHOW TABLES LIKE "${tableName}"
+    </select>
+
+</mapper>

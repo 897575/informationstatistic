@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java.informationstatistic.dao.car.CarRepostDao">
+    <resultMap id="baseRepostResultMap" type="com.java.informationstatistic.model.Repost">
+        <result column="repost_id" property="repostId"/>
+        <result column="post_id" property="postId"/>
+        <result column="repost_time" property="repostTime"/>
+        <result column="positive_prob" property="positiveProb"/>
+    </resultMap>
+
+    <select id="findByRepostTime" resultMap="baseRepostResultMap" parameterType="map" statementType="STATEMENT">
+        SELECT
+              repost_id,post_id,repost_time,positive_prob
+        FROM
+              ${tableName}
+        WHERE
+              repost_time BETWEEN '${beginTime}'  AND '${endTime}';
+    </select>
+</mapper>
