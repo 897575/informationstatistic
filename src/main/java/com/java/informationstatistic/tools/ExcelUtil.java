@@ -36,7 +36,7 @@ public class ExcelUtil {
      */
     public static void generateExcel(HttpServletResponse response, String beginTime, String platform, int frequency, CarResultService carResultService){
         response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-disposition", "attachment;filename=statistics.xlsx");
+        response.setHeader("Content-disposition", "attachment;filename="+platform+".xlsx");
         OutputStream os  = null;
         try{
             SXSSFWorkbook hwb = getExcelData(beginTime,platform,frequency,carResultService);
@@ -152,7 +152,7 @@ public class ExcelUtil {
         if(printData==null||printData.isEmpty()){
             return;
         }
-        Sheet sheet = hw.createSheet(beginTime+"("+pageNumber+")");
+        Sheet sheet = hw.createSheet(beginTime+"("+pageNumber+StringInfo.ONE+")");
         //创建表
         sheet.setDefaultColumnWidth(20);
         sheet.setDefaultRowHeightInPoints(20);

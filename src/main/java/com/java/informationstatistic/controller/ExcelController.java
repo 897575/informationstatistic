@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 打印excel
@@ -46,6 +48,19 @@ public class ExcelController {
         String beginTime = times[0].trim();
         String endTime = times[1].trim();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        int total;
+        Map<String,String> param = new HashMap<>();
+        param.put("beginTime",beginTime+"-01");
+        param.put("endTime",endTime+"-31");
+        param.put("platform",platform);
+        if(Integer.valueOf(beginTime.split("-")[0])>=2020){
+            total = carResultService.queryResultInfo(param);
+        }else{
+            total = carResultService.queryAllResultInfo(param);
+        }
+        if(total==0){
+            return ;
+        }
         int month;
         try{
             Calendar calendar = Calendar.getInstance();

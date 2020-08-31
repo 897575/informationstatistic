@@ -32,18 +32,12 @@ public class DataController {
     public Map<String, Object> queryResultByTimeLimit(Integer pageSize, Integer pageNumber, String time, String platform) {
         Map<String, Object> resultMap = new HashMap<>();
         if (platform == null || "".equals(platform)) {
-            resultMap.put("status", "202");
-            resultMap.put("message", "平台未选择");
             return resultMap;
         }
         if (pageNumber == null | pageSize == null || pageSize == 0 || pageNumber == 0) {
-            resultMap.put("status", "202");
-            resultMap.put("message", "页码缺失");
             return resultMap;
         }
         if (time == null || "".equals(time)) {
-            resultMap.put("status", "202");
-            resultMap.put("message", "开始时间缺失");
             return resultMap;
         }
         String beginTime = time.split("/")[0].trim();
@@ -55,8 +49,6 @@ public class DataController {
             sdf.parse(beginTime);
             sdf.parse(endTime);
         } catch (Exception e) {
-            resultMap.put("status", "202");
-            resultMap.put("message", "请输入正确的时间");
             return resultMap;
         }
         //获取总共的条数
@@ -71,7 +63,6 @@ public class DataController {
             total = carResultService.queryAllResultInfo(params);
         }
         if (total == 0) {
-            resultMap.put("status", "201");
             return resultMap;
         }
         String startIndex = String.valueOf((pageNumber - 1) * pageSize);
@@ -84,11 +75,8 @@ public class DataController {
             results = carResultService.queryAllResultLimit(params);
         }
         if (results == null || results.isEmpty()) {
-            resultMap.put("status", "204");
-            resultMap.put("message", "没有数据");
             return resultMap;
         }
-        resultMap.put("status", "200");
         resultMap.put("total", total);
         resultMap.put("rows", results);
         return resultMap;
