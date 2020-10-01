@@ -24,4 +24,13 @@ public interface PostfInformationDealService {
      * @return 处理结果
      */
     List<String> postInfoDeal(List<Post> posts, List<PostTag> postTags,String platform);
+
+    /**
+     * post品牌拆分处理
+     * @param posts post数据
+     * @param postTags post标签信息
+     * @param platform 平台
+     * @return 处理结果
+     */
+    List<String> postInfoBrandDeal(List<Post> posts,List<PostTag> postTags,String platform);
 }

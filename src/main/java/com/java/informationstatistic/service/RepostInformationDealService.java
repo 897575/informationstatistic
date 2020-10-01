@@ -21,4 +21,14 @@ public interface RepostInformationDealService {
      * @return 处理结果
      */
     List<String> repostInfoDeal(List<Repost> reposts, List<RepostTag> repostTags, List<PostTag> postTags,String platform);
+
+    /**
+     * repost品牌处理
+     * @param reposts repost信息
+     * @param repostTags repost标签信息
+     * @param postTags post标签信息
+     * @param platform 平台
+     * @return 处理信息
+     */
+    List<String> repostInfoBrand(List<Repost> reposts, List<RepostTag> repostTags, List<PostTag> postTags,String platform);
 }

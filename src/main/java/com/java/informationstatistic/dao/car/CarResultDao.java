@@ -64,4 +64,18 @@ public interface CarResultDao {
      * @return 查询结果
      */
     List<Result> queryResultLimit(Map<String,String> params);
+
+    /**
+     * 插入品牌信息
+     * @param resultList 插入数据
+     *
+     */
+    void insertBrandInfo(List<Result> resultList);
+
+    /**
+     * 查询数据是否生成
+     * @param params 查询信息
+     * @return 条数
+     */
+    int countBrandInfo(Map<String,String> params);
 }

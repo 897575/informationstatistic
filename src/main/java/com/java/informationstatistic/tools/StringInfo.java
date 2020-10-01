@@ -92,4 +92,9 @@ public interface StringInfo {
       * excel默认导出数据量
       */
      int EXCEL_SIZE = 500000;
+
+     /**
+      * id最大序列
+      */
+     int INDEX_MAX = 8;
 }

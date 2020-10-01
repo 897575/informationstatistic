@@ -1,6 +1,7 @@
 package com.java.informationstatistic.service.impl;
 
 import com.java.informationstatistic.dao.car.CarResultDao;
+import com.java.informationstatistic.model.Repost;
 import com.java.informationstatistic.model.Result;
 import com.java.informationstatistic.service.CarResultService;
 import org.springframework.stereotype.Service;
@@ -64,5 +65,14 @@ public class CarResultServiceImpl implements CarResultService {
     @Override
     public int queryAllResultInfo(Map<String, String> param) {
         return carResultDao.queryAllResultInfo(param);
+    }
+
+    @Override
+    public void insertBrandInfo(List<Result> resultList) {
+        carResultDao.insertBrandInfo(resultList);
+    }
+    @Override
+    public int countBrandInfo(Map<String, String> params) {
+        return carResultDao.countBrandInfo(params);
     }
 }

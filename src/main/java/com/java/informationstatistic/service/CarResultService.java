@@ -62,4 +62,17 @@ public interface CarResultService {
      */
     List<Result> queryResultLimit(Map<String,String> param);
 
+    /**
+     * 插入品牌信息
+     * @param resultList 品牌信息
+     */
+    void insertBrandInfo(List<Result> resultList);
+
+    /**
+     * 查询数据是否生成
+     * @param params 查询信息
+     * @return 条数
+     */
+    int countBrandInfo(Map<String,String> params);
+
 }

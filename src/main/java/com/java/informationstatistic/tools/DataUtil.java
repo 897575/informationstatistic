@@ -2,6 +2,7 @@ package com.java.informationstatistic.tools;
 
 import com.java.informationstatistic.model.*;
 import com.java.informationstatistic.service.CarPostService;
+import com.java.informationstatistic.service.CarResultService;
 import com.java.informationstatistic.service.TagPostService;
 
 import java.text.SimpleDateFormat;
@@ -18,6 +19,221 @@ import java.util.*;
  */
 public class DataUtil {
 
+
+
+    /**
+     * 合并品牌信息和诉求信息
+     *
+     * @param brand 品牌信息
+     * @param need  诉求信息
+     * @param time  时间信息
+     * @return
+     */
+    public static  List<String> mergeInfos(List<String> brand, List<String> need, String time,String platform,double prob) {
+        List<String> result = new ArrayList<>();
+        //判断信息是否可用
+        if (brand == null || brand.isEmpty() || time == null||"".equals(time)) {
+            return null;
+        }
+        //合并品牌重复数据
+        Set<String> brandSet = new HashSet<>(brand);
+        Set<String> needSet = new HashSet<>(need);
+        //没有诉求信息
+        if (need.isEmpty()) {
+            for (String str : brandSet) {
+                //没有情感
+                result.add(str.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + platform+StringInfo.POST + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + time);
+                //具有情感
+                result.add(str.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + platform+StringInfo.POST + StringInfo.COMMA + (prob >= StringInfo.FLAG_dATA ? StringInfo.POSITIVE + StringInfo.COMMA : StringInfo.NEGATIVE + StringInfo.COMMA) + time);
+            }
+            return result;
+        } else {
+            //合并诉求重复信息
+            for (String brandStr : brandSet) {
+                if (!brandStr.contains(StringInfo.MARK_ID)) {
+                    continue;
+                }
+                for (String needStr : needSet) {
+                    if (!brandStr.contains(StringInfo.MARK_ID)) {
+                        continue;
+                    }
+                    result.add(brandStr.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + needStr.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + platform+StringInfo.POST  + StringInfo.COMMA + StringInfo.NULL + StringInfo.COMMA + time);
+                    result.add(brandStr.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + needStr.split(StringInfo.MARK_ID)[StringInfo.ONE] + StringInfo.COMMA + platform+StringInfo.POST  + StringInfo.COMMA + (prob >= StringInfo.FLAG_dATA ? StringInfo.POSITIVE + StringInfo.COMMA : StringInfo.NEGATIVE + StringInfo.COMMA) + time);
+                }
+            }
+            return result;
+        }
+    }
+
+
+    /**
+     * 具有诉求信息的处理
+     *
+     * @param needInfos 诉求信息
+     * @return
+     */
+    public static List<String> needInfoDeal(long postId, List<String> needInfos) {
+        if (needInfos == null || needInfos.isEmpty()) {
+            return null;
+        }
+        StringBuffer sbt = new StringBuffer();
+        List<String> resultInfos = new ArrayList<>();
+
+        for (String info : needInfos) {
+            if (info == null || "".equals(info)) {
+                continue;
+            }
+            if (info.startsWith(StringInfo.BRAND)) {
+                continue;
+            }
+            String[] needs = info.split("\\.");
+            //等级不足三级
+            if (needs.length < StringInfo.THREE) {
+                continue;
+            }
+            sbt.append(postId + StringInfo.MARK_ID);
+            for (int i = 0; i < needs.length; i++) {
+                if (!"".equals(needs[i])) {
+                    sbt.append(needs[i]);
+                    if (i < StringInfo.TWO) {
+                        sbt.append(StringInfo.POT);
+                        continue;
+                    }
+                    sbt.append(StringInfo.COMMA + (i + StringInfo.ONE));
+                    resultInfos.add(sbt.toString());
+                    sbt.delete(sbt.length() - StringInfo.TWO, sbt.length());
+                    sbt.append(StringInfo.POT);
+                }
+            }
+            sbt.delete(0, sbt.length());
+        }
+        return resultInfos;
+    }
+
+    /**
+     * 获取配置平台需要处理的表数据
+     *
+     * @param platformTableInfos 平台配置信息
+     * @param platform           平台类别
+     * @return 需要处理的表信息
+     */
+    public static List<PlatformTableInfo> getNeedDealTableName(List<PlatformTableInfo> platformTableInfos, String platform) {
+        List<PlatformTableInfo> tableNames = new ArrayList<>();
+        for (PlatformTableInfo platformTableInfo : platformTableInfos) {
+            if (platformTableInfo == null) {
+                continue;
+            }
+            if (platformTableInfo.getPlatformFlags().contains(platform)) {
+                tableNames.add(platformTableInfo);
+            }
+        }
+        return tableNames;
+    }
+
+    /**
+     * 获取关联信息表
+     *
+     * @param relateTableInfos 关联表集合
+     * @param tableName        表名
+     * @return 关联表信息
+     */
+    public static RelateTableInfo getRelateTableName(List<RelateTableInfo> relateTableInfos, String tableName) {
+        for (RelateTableInfo relateTableInfo : relateTableInfos) {
+            if (relateTableInfo == null || "".equals(relateTableInfo.getTableName())) {
+                continue;
+            }
+            if (tableName.equals(relateTableInfo.getTableName())) {
+                return relateTableInfo;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 插入数据
+     * @param resultList 插入数据集
+     * @param beginTime 开始时间
+     * @param carResultService 持久层
+     * @param platform 平台
+     */
+    public static void insertData(List<String> resultList, String beginTime, CarResultService carResultService,String platform,String type){
+        //转化为结果
+        List<Result> results = DataUtil.formatObject(resultList,platform);
+        List<Result> insertList = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < results.size(); i++){
+            insertList.add(results.get(i));
+            index++;
+            if (index == 10000) {
+                if("1".equals(type)){
+                    if (Integer.valueOf(beginTime.split("-")[0])>=2020) {
+                        carResultService.insertResultInfo(insertList, platform);
+                    } else {
+                        carResultService.insertAllResultInfo(insertList, platform);
+                    }
+                }else{
+                    carResultService.insertBrandInfo(insertList);
+                }
+
+                index=0;
+                insertList.clear();
+            }
+        }
+        if(!insertList.isEmpty()){
+            if("2".equals(type)){
+                carResultService.insertBrandInfo(insertList);
+            }else{
+                if (Integer.valueOf(beginTime.split("-")[0])>=2020){
+                    carResultService.insertResultInfo(insertList, platform);
+                } else{
+                    carResultService.insertAllResultInfo(insertList, platform);
+                }
+            }
+        }
+    }
+
+    /**
+     * 品牌信息处理
+     *
+     * @param postId    postid
+     * @param brandInfo 品牌信息
+     */
+    public static List<String> brandDataDeal(long postId, List<String> brandInfo) {
+        List<String> brandInfos = new ArrayList<>();
+        if (brandInfo == null || brandInfo.isEmpty()) {
+            return null;
+        }
+        StringBuffer stb = new StringBuffer();
+        for (int i = 0; i < brandInfo.size(); i++) {
+            if (brandInfo.get(i) == null || "".equals(brandInfo.get(i))) {
+                continue;
+            }
+            //只需要品牌信息
+            if (!brandInfo.get(i).startsWith(StringInfo.BRAND)) {
+                continue;
+            }
+            //切割品牌信息
+            String[] brands = brandInfo.get(i).split("\\.");
+            stb.append(postId + StringInfo.MARK_ID);
+            for (int j = 0; j < brands.length; j++) {
+                if ("".equals(brands[j])) {
+                    continue;
+                }
+                stb.append(brands[j]);
+                if (j == 0) {
+                    stb.append(StringInfo.POT);
+                    continue;
+                }
+                stb.append(StringInfo.COMMA + (j + StringInfo.ONE));
+                brandInfos.add(stb.toString());
+                stb.delete(stb.length() - StringInfo.TWO, stb.length());
+                stb.append(StringInfo.POT);
+            }
+            stb.delete(0, stb.length());
+        }
+        return brandInfos;
+    }
 
     /**
      * 获取id
@@ -46,6 +262,34 @@ public class DataUtil {
         return ids;
     }
 
+    /**
+     *
+     * @param date 日期
+     * @param index 下标序号
+     * @return 结果id
+     */
+    public static String generationId(String date,String platform,int index){
+        if(date==null||"".equals(date)||platform==null
+                ||"".equals(platform)){
+            return null;
+        }
+        date =date.replace("-","");
+        String result = platform+date;
+        String number = String.valueOf(index);
+        String zero = "";
+        if(number.length()!=StringInfo.INDEX_MAX){
+            for(int i =0;i<StringInfo.INDEX_MAX-number.length();i++){
+                zero += "0";
+            }
+        }
+        result += zero+number;
+        return result;
+    }
+
+    public static void main(String[] args) {
+        String result = DataUtil.generationId("2020-9-8","ak",2);
+        System.out.println(result);
+    }
 
     /**
      * 将数据转化并统计
@@ -53,7 +297,7 @@ public class DataUtil {
      * @param resultList 结果集合
      * @return 转化结果
      */
-    public static List<Result> formatObject(List<String> resultList) {
+    public static List<Result> formatObject(List<String> resultList,String platform) {
         if (resultList == null || resultList.isEmpty()) {
             return null;
         }
@@ -78,12 +322,20 @@ public class DataUtil {
                 continue;
             }
             Result result = new Result();
+            String id = DataUtil.generationId(strs[6],platform,i+1);
+            if(id!=null&&!"".equals(id)){
+                result.setId(id);
+            }else{
+                String uuid = UUID.randomUUID().toString().replaceAll("-","");
+                result.setId(uuid);
+            }
             result.setBrand(strs[0]);
             result.setBrandLevel(strs[1]);
             result.setNeed(strs[2]);
             result.setNeedLevel(strs[3]);
             result.setChannel(strs[4]);
             result.setSentiment(strs[5]);
+
             result.setTime(strs[6]);
             result.setNum(resultMap.get(keys.get(i)));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

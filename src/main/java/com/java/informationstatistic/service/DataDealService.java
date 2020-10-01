@@ -19,5 +19,5 @@ public interface DataDealService {
      * @param endTime 结束时间
      * @param platform 平台类别
      */
-    void dataDeal(CarResultService carResultService, String beginTime, String endTime, String platform);
+    List<String> dataDeal(CarResultService carResultService, String beginTime, String endTime, String platform);
 }

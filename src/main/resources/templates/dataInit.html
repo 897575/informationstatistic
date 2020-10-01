@@ -66,6 +66,15 @@
             <option value="12">12</option>
         </select>
     </div>
+    <div>
+        <div style="margin-left: 35%;padding-top: 13%;font-size: 27px;font-family: '微软雅黑 Light';display: inline;color: green">
+            OPRETION TYPE
+        </div>
+        <select id="type" style="display: inline;margin-left: 10%;margin-top: 8%;width:100px;height: 31px">
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+    </div>
     <div id="submit" style="margin-left: 48%;margin-top: 100px;width:58px;border: 1px solid black;border-radius:3px;font-size: 18px;color: green;cursor: pointer;">
         Submit
     </div>
@@ -79,11 +88,12 @@
         var year = $("#year").val();
         var month = $("#month").val();
         var platform = $("#platform").val();
+        var type = $("#type").val();
         $.ajax({
             url:"/data/initDayDeal",
             type:"post",
             dataType:"json",
-            data:{'year':year,'month':month,'platform':platform},
+            data:{'year':year,'month':month,'platform':platform,'type':type},
             success:function (result) {
                 if(result==1){
                     alert("初始化完成");

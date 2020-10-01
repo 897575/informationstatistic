@@ -83,6 +83,23 @@
                 time BETWEEN  '${beginTime}' AND '${endTime}' limit  ${firstIndex},${pageSize}
     </select>
 
-    
+    <select id="insertBrandInfo" parameterType="list" >
+        INSERT INTO
+                    brand_count_result
+                    (id,brand,brand_level,need,need_level,channel,time,create_time,sentiment,number)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},'${item.brand}','${item.brandLevel}','${item.need}','${item.needLevel}','${item.channel}','${item.time}','${item.createTime}','${item.sentiment}',${item.num})
+        </foreach>
+    </select>
+
+    <select id="countBrandInfo" parameterType="map" resultType="int">
+        SELECT
+              COUNT(id)
+        FROM
+                  brand_count_result
+        WHERE
+              time BETWEEN '${beginTime}' AND '${endTime}' and channel = '${platform}';
+    </select>
 
 </mapper>
